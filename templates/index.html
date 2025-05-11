@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Поисковик книг</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  </head>
+  <body>
+    <main class="main">
+      <div class="container">
+        <header class="header">
+          <h1 class="title">Поисковик книг</h1>
+          <p>Найдитие ваши любимые книги в считанные секунды</p>
+        </header>
+
+        <search class="search-container">
+          <form class="search-form" action="/results" method="get">
+            <input
+              class="input search-container"
+              type="text"
+              name="query"
+              placeholder="Введите название книги"
+              required
+            />
+
+            <button class="button" type="submit">Найти</button>
+          </form>
+        </search>
+      </div>
+    </main>
+  </body>
+</html>
