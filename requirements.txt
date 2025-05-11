@@ -1,3 +1,4 @@
+altgraph==0.17.4
 annotated-types==0.7.0
 anyio==4.9.0
 beautifulsoup4==4.13.4
@@ -10,9 +11,13 @@ h11==0.16.0
 idna==3.10
 Jinja2==3.1.6
 MarkupSafe==3.0.2
+packaging==25.0
 pydantic==2.11.4
 pydantic_core==2.33.2
+pyinstaller==6.13.0
+pyinstaller-hooks-contrib==2025.4
 requests==2.32.3
+setuptools==80.4.0
 sniffio==1.3.1
 soupsieve==2.7
 starlette==0.46.2

@@ -20,11 +20,23 @@ pip install -r requirements.txt
 
 # Запуск проекта
 
-Для запуска проекта выполните команду
+1. Сборка проекта
 
 ```python
-uvicorn main:app
+py build.py
 ```
+
+В результате должны появиться папки build, dist и файл BookSearch.spec
+
+2. Сборка исполняемого файла
+
+```python
+pyinstaller BookSearch.spec
+```
+
+3. Запускаем исполняемый файл
+
+Исполняемый файл будет находиться в папке dist
 
 <br />
 
