@@ -16,7 +16,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/results")
+@app.get("/search")
 async def find_books(request: Request):
     query = request._query_params.get("query") or ""
     parsed_query = parse_book_name.parse_book_name(query)
@@ -25,27 +25,4 @@ async def find_books(request: Request):
 
     flatten_books = reduce(lambda a, b: a+b, books)
 
-    #flatten_books = [
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок. Русская народная сказка. Книжка-панорама с движущимися фигурками", "price": 180, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #    {"title": "Колобок", "price": 179, "link": "www.google.com"},
-    #]
-
-    return templates.TemplateResponse("results.html", {"request": request, "books": flatten_books, "query": query})
+    return templates.TemplateResponse("index.html", {"request": request, "books": flatten_books, "query": query})
