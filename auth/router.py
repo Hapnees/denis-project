@@ -33,11 +33,12 @@ async def get_all_users(
 # Обработчик POST-запроса для регистрации нового пользователя
 @router.post('/register')
 async def register(
+    response: Response,  # Объект ответа для установки cookies
     body: UserRegisterSchema,
     session: database.SessionDep  # Зависимость для получения сессии БД
 ):
     # Передаём данные в сервисный слой для регистрации
-    return await service.register(body, session)
+    return await service.register(response, body, session)
 
 # Обработчик POST-запроса для авторизации пользователя
 @router.post('/login')
