@@ -107,8 +107,8 @@ async def register(response: Response, data: UserRegisterSchema, session: databa
         email=data.email,
         hash=hash,
         rt_hash="test_hash",
-    ))
-    user = user_result.scalar_one_or_none()
+    ).returning(UserModel))
+    user = user_result.scalar_one()
     # Сохраняем изменения
     await session.commit()
 
@@ -116,8 +116,8 @@ async def register(response: Response, data: UserRegisterSchema, session: databa
     access_token = create_tokens({"id": user.id})['access_token']
     # Устанавливаем токен в cookie
     response.set_cookie(key="access_token", value=access_token, httponly=True)
+    return {"success": True}
 
-    return RedirectResponse(url="/", status_code=303)
 
 # Функция для авторизации пользователя
 async def login(response: Response, data: UserLoginSchema, session: database.SessionDep):

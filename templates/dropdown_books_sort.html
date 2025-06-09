@@ -135,23 +135,18 @@
 
       const params = (splittedHref[1] || '').split('&').reduce((acc, item) => {
         if (!item) return acc
-
+        console.log(item)
         const [key, value] = item.split('=')
+        if (key === 'sort') return acc
 
-        acc[key] = value
+        acc.push(`${key}=${value}`)
+
         return acc
-      }, {})
+      }, [])
 
-      params['sort'] = value
+      params.push(`sort=${value}`)
 
-      const strParams = Object.keys(params)
-        .reduce((acc, key) => {
-          const value = params[key]
-          acc.push(`${key}=${value}`)
-
-          return acc
-        }, [])
-        .join('&')
+      const strParams = params.join('&')
 
       const formattedHref = properlyHref + '?' + strParams
       window.location.href = formattedHref
