@@ -1,21 +1,49 @@
+<!--
+  Это основной HTML-шаблон для главной страницы поиска книг.
+  Здесь пользователь может ввести название книги и увидеть результаты поиска.
+-->
 <!DOCTYPE html>
-<html lang="en">
+<!-- Указываем, что это HTML5-документ -->
+<html lang="ru">
+  <!-- Указываем язык документа -->
   <head>
+    <!-- Устанавливаем кодировку символов, чтобы поддерживать русский и другие языки -->
     <meta charset="UTF-8" />
+    <!-- Делаем страницу адаптивной для мобильных устройств -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Заголовок страницы, который отображается на вкладке браузера -->
     <title>Поисковик книг</title>
+    <!-- Подключаем CSS-файл для стилизации страницы. url_for — функция FastAPI для генерации пути к статическим файлам -->
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+    <script
+      type="module"
+      src="{{ url_for('static', path='/scripts/shared.js') }}"
+    ></script>
   </head>
   <body>
-    <main class="main">
+    {% include 'header.html' %}
+    <!-- Основная часть страницы -->
+    <main class="main home-main">
       <div class="container">
-        <header class="header">
+        <!-- Контейнер для центрирования и ограничения ширины -->
+        <!-- Шапка сайта с заголовком и описанием -->
+        <div class="home-top">
           <h1 class="title">Поисковик книг</h1>
+          <!-- Главный заголовок -->
           <p>Найдитие ваши любимые книги в считанные секунды</p>
-        </header>
+          <!-- Краткое описание -->
+        </div>
 
+        <!-- Секция поиска -->
         <search class="search-container">
+          <!-- Форма поиска. При отправке делает GET-запрос на /search -->
           <form class="search-form" action="/search" method="get">
+            <input type="hidden" name="sort" value="{{sort}}" />
+            {% for resource in resources %}
+            <input type="hidden" name="resources" value="{{resource}}" />
+            {% endfor %}
+
+            <!-- Поле для ввода поискового запроса. Значение подставляется из переменной query -->
             <input
               class="input search-container"
               type="text"
@@ -25,30 +53,191 @@
               required
             />
 
+            <!-- Кнопка для отправки формы -->
             <button class="button" type="submit">Найти</button>
           </form>
         </search>
 
-        <ul class="books-list">
-          {% for book in books %}
-          <li>
-            <a href="{{ book.link }}" class="book-card">
-              {% if book.img_link %}
-              <img class="book-card_img" src="{{ book.img_link }}" />
-              {% else %}
-              <div class="book-card_img book-card_img-placeholder"></div>
-              {% endif %}
-              <div class="book-card_info">
-                <p class="book-card_price">{{book.price}}₽</p>
-                <p class="book-card_title" title="{{book.title}}">
-                  {{ book.title }}
-                </p>
-              </div>
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
+        {% if query %}
+        <div class="books-controls">
+          <div class="books-sort">
+            <label class="label">Сортировка:</label>
+            {% set sort_options = [{"value": "", "text": "Без сортировки", }, {
+            "value": "price_asc", "text": "Сначала дешёвые" }, {"value":
+            "price_desc", "text": "Сначала дорогие"}] %} {% with
+            options=sort_options, selected_option=sort %} {% include
+            'dropdown_books_sort.html' %} {% endwith %}
+          </div>
+
+          <div class="books-sort">
+            <label class="label">Ресурсы:</label>
+            <ul id="sources-list" class="sources-list">
+              <li>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="bukvoed" {% if 'bukvoed' in
+                  resources %}checked{% endif %} />
+                  <p>bukvoed</p>
+                </label>
+              </li>
+              <li>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="book24" {% if 'book24' in resources
+                  %}checked{% endif %} />
+                  <p>book24</p>
+                </label>
+              </li>
+              <li>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="labirint" {% if 'labirint' in
+                  resources %}checked{% endif %} />
+                  <p>labirint</p>
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Список найденных книг -->
+        <div class="books-list" id="books-list">
+          <!-- Jinja2-цикл: перебираем все книги из переменной books -->
+          {% for book in books %} {% include 'book.html' %} {% endfor %}
+        </div>
       </div>
     </main>
+
+    <script>
+      const sourcesListElement = document.getElementById('sources-list')
+
+      if (sourcesListElement) {
+        Array.from(sourcesListElement.children).forEach(element => {
+          const checkboxElement = element.querySelector(
+            'input[type="checkbox"]'
+          )
+
+          checkboxElement.onchange = event => {
+            const isChecked = event.target.checked
+            const value = event.target.id
+            console.log(value)
+
+            const urlParams = new URLSearchParams(window.location.search)
+            if (isChecked) {
+              urlParams.append('resources', value)
+            } else {
+              urlParams.delete('resources', value)
+            }
+
+            window.history.pushState(
+              {},
+              '',
+              `${window.location.pathname}?${urlParams.toString()}`
+            )
+            window.location.reload()
+          }
+        })
+      }
+
+      const booksListElement = document.getElementById('books-list')
+
+      const setFavoriteIds = async () => {
+        return await fetch('http://localhost:8000/book/get-favorites', {
+          credentials: 'include',
+        }).then(async res => {
+          const favoriteBooks = await res.json()
+
+          booksListElement?.children &&
+            Array.from(booksListElement.children)?.forEach(bookElement => {
+              const foundFavBook = favoriteBooks.find(
+                book =>
+                  book.external_id ===
+                  bookElement.getAttribute('data-external-id')
+              )
+
+              if (foundFavBook) {
+                bookElement.setAttribute('data-is-liked', true)
+                bookElement
+                  .querySelector('#book-like')
+                  .classList.add('book-card__like_liked')
+              }
+            })
+
+          return favoriteBooks
+        })
+      }
+
+      setFavoriteIds().then(res => {
+        let favoriteBooks = res
+
+        booksListElement?.children &&
+          Array.from(booksListElement.children)?.forEach(bookElement => {
+            const likeElement = bookElement.querySelector('#book-like')
+            if (!likeElement) return
+
+            const foundFavBook = favoriteBooks.find(
+              book =>
+                book.external_id ===
+                bookElement.getAttribute('data-external-id')
+            )
+            const isLiked = !!foundFavBook
+
+            likeElement.onclick = async e => {
+              e.preventDefault()
+              console.log('CLICK')
+
+              const isLiked = bookElement.getAttribute('data-is-liked')
+
+              if (isLiked) {
+                const res = await fetch(
+                  `http://localhost:8000/book/remove-favorite/${foundFavBook.id}`,
+                  {
+                    method: 'DELETE',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  }
+                )
+
+                if (res.ok) {
+                  likeElement.classList.remove('book-card__like_liked')
+                }
+              } else {
+                const title = bookElement
+                  .querySelector('#book-title')
+                  ?.textContent?.trim()
+                const price = Number(
+                  bookElement
+                    .querySelector('#book-price')
+                    ?.textContent?.trim()
+                    ?.slice(0, -1)
+                )
+                const imgLink = bookElement.querySelector('#book-img')?.src
+                const link = bookElement.href
+                const externalId = bookElement.getAttribute('data-external-id')
+
+                const res = await fetch(
+                  'http://localhost:8000/book/add-favorite',
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      title,
+                      link,
+                      price,
+                      img_link: imgLink,
+                      external_id: externalId,
+                    }),
+                  }
+                )
+
+                if (res.ok) {
+                  likeElement.classList.add('book-card__like_liked')
+                }
+              }
+            }
+          })
+      })
+    </script>
   </body>
 </html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <!-- Устанавливаем кодировку символов, чтобы поддерживать русский и другие языки -->
+  <meta charset="UTF-8" />
+  <!-- Делаем страницу адаптивной для мобильных устройств -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Заголовок страницы, который отображается на вкладке браузера -->
+  <title>Личный кабинет</title>
+  <!-- Подключаем CSS-файл для стилизации страницы. url_for — функция FastAPI для генерации пути к статическим файлам -->
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  <script
+    type="module"
+    src="{{ url_for('static', path='/scripts/shared.js') }}"
+  ></script>
+  <body>
+    {% include 'header.html' %}
+
+    <main class="page main">
+      <div class="container">
+        <div class="account__top">
+          <h1 class="title account__title">Личный кабинет</h1>
+          <button id="logout-button" class="button logout__button">
+            Выйти
+          </button>
+        </div>
+
+        <div id="account-content" class="account__content">
+          <div>{% include 'account_tabs.html' %}</div>
+
+          {% if books|length > 0 %}
+          <div id="books-list" class="books-list">
+            {% for book in books %} {% with show_dropdown = "true" %} {% include
+            'book.html' %} {% endwith %} {% endfor %}
+          </div>
+          {% else %}
+          <p>Не найдено</p>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const logoutButton = document.getElementById('logout-button')
+      if (logoutButton) {
+        logoutButton.onclick = () => {
+          fetch('http://localhost:8000/user/logout', {
+            method: 'POST',
+            credentials: 'include',
+          }).then(res => {
+            if (res.ok) {
+              localStorage.removeItem('user')
+              window.location.href = '/auth'
+            }
+          })
+        }
+      }
+
+      const booksListElement = document.getElementById('books-list')
+      const books = JSON.parse('{{ books | tojson | safe }}')
+
+      booksListElement?.children &&
+        Array.from(booksListElement.children)?.forEach((bookElement, index) => {
+          const book = books[index]
+
+          if (!book) return
+
+          const likeElement = bookElement.querySelector('#book-like')
+          if (!likeElement) return
+          likeElement.classList.add('book-card__like_liked')
+          bookElement.setAttribute('data-is-liked', true)
+          bookElement.setAttribute('data-id', book.id)
+
+          likeElement.onclick = async e => {
+            e.preventDefault()
+
+            const title = bookElement
+              .querySelector('#book-title')
+              ?.textContent?.trim()
+            const price = Number(
+              bookElement
+                .querySelector('#book-price')
+                ?.textContent?.trim()
+                ?.slice(0, -1)
+            )
+            const imgLink = bookElement.querySelector('#book-img')?.src
+            const link = bookElement.querySelector('#book-link')?.href
+
+            const res = await fetch(
+              `http://localhost:8000/book/remove-favorite/${book.id}`,
+              {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+
+            if (res.ok) {
+              bookElement.remove()
+            }
+          }
+        })
+    </script>
+  </body>
+</html>

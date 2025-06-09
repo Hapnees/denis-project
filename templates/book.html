@@ -1,0 +1,34 @@
+<a
+  id="book-link"
+  href="{{ book.link }}"
+  class="book-card"
+  data-external-id="{{ book.external_id }}"
+  target="_blank"
+>
+  <div class="book-card__like" id="book-like">
+    <img src="{{ url_for('static', path='/svg/heart.svg') }}" />
+  </div>
+  <!-- Если есть ссылка на изображение, показываем картинку -->
+  {% if book.img_link %}
+  <img id="book-img" class="book-card_img" src="{{ book.img_link }}" />
+  {% else %}
+  <!-- Если картинки нет, показываем заглушку -->
+  <div class="book-card_img book-card_img-placeholder"></div>
+  {% endif %}
+  <!-- Блок с информацией о книге -->
+  <div class="book-card_info">
+    <p id="book-price" class="book-card_price">{{book.price}}₽</p>
+    <!-- Цена книги -->
+    <p id="book-title" class="book-card_title" title="{{book.title}}">
+      {{ book.title }}
+      <!-- Название книги -->
+    </p>
+
+    {% if show_dropdown %} {% set dropdown_options = [{ "value": "reading",
+    "text": "читаю" }, {"value": "read", "text": "прочитано"}, {"value":
+    "postponed", "text": "отложено"}, {"value": "planned", "text": "в планах"}]
+    %} {% with dropdown_id = book.id, options = dropdown_options,
+    selected_option = book.status, book_id = book.id %} {% include
+    'dropdown.html' %} {% endwith %} {% endif %}
+  </div>
+</a>

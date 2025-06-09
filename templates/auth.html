@@ -1,0 +1,262 @@
+<!--
+  Это HTML-шаблон страницы авторизации и регистрации пользователя.
+  Здесь пользователь может войти в свой аккаунт или зарегистрироваться.
+-->
+<!DOCTYPE html>
+<!-- Указываем, что это HTML5-документ -->
+<html lang="ru">
+  <!-- Указываем язык документа -->
+  <head>
+    <!-- Устанавливаем кодировку символов, чтобы поддерживать русский и другие языки -->
+    <meta charset="UTF-8" />
+    <!-- Делаем страницу адаптивной для мобильных устройств -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Заголовок страницы, который отображается на вкладке браузера -->
+    <title>Авторизация</title>
+    <!-- Подключаем Tailwind CSS — фреймворк для стилизации элементов -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+    <script
+      type="module"
+      src="{{ url_for('static', path='/scripts/shared.js') }}"
+    ></script>
+  </head>
+  <!-- Основной блок body. Здесь задаём фон, минимальную высоту экрана и выравнивание по центру -->
+  <body>
+    {% include 'header.html' %}
+
+    <main class="bg-gray-100 min-h-screen flex items-center justify-center">
+      <!-- Контейнер для форм. Белый фон, скруглённые углы, тень, отступы -->
+      <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+        <!-- Переключатель между формами входа и регистрации -->
+        <div class="flex justify-center space-x-4 mb-8">
+          <!-- Кнопка для показа формы входа -->
+          <button
+            onclick="showForm('login')"
+            class="px-4 py-2 rounded-lg bg-blue-500 text-white"
+            id="loginBtn"
+          >
+            Вход
+          </button>
+          <!-- Кнопка для показа формы регистрации -->
+          <button
+            onclick="showForm('register')"
+            class="px-4 py-2 rounded-lg bg-gray-200"
+            id="registerBtn"
+          >
+            Регистрация
+          </button>
+        </div>
+
+        <!-- Форма входа -->
+        <form
+          id="loginForm"
+          class="space-y-6"
+          action="/user/login"
+          method="POST"
+        >
+          <!-- Блок для ввода email -->
+          <div>
+            <label
+              for="login-email"
+              class="block text-sm font-medium text-gray-700"
+              >Email</label
+            >
+            <input
+              type="string"
+              name="email"
+              id="login-email"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <!-- Блок для ввода пароля -->
+          <div>
+            <label
+              for="login-password"
+              class="block text-sm font-medium text-gray-700"
+              >Пароль</label
+            >
+            <input
+              type="password"
+              name="password"
+              id="login-password"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <!-- Кнопка отправки формы входа -->
+          <div>
+            <button
+              type="submit"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Войти
+            </button>
+          </div>
+        </form>
+
+        <!-- Форма регистрации (изначально скрыта с помощью класса hidden) -->
+        <form
+          id="registerForm"
+          class="space-y-6 hidden"
+          action="/user/register"
+          method="POST"
+        >
+          <!-- Блок для ввода имени -->
+          <div>
+            <label
+              for="register-name"
+              class="block text-sm font-medium text-gray-700"
+              >Имя</label
+            >
+            <input
+              type="text"
+              name="name"
+              id="register-name"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <!-- Блок для ввода email -->
+          <div>
+            <label
+              for="register-email"
+              class="block text-sm font-medium text-gray-700"
+              >Email</label
+            >
+            <input
+              type="email"
+              name="email"
+              id="register-email"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <!-- Блок для ввода пароля -->
+          <div>
+            <label
+              for="register-password"
+              class="block text-sm font-medium text-gray-700"
+              >Пароль</label
+            >
+            <input
+              type="password"
+              name="password"
+              id="register-password"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <!-- Кнопка отправки формы регистрации -->
+          <div>
+            <button
+              type="submit"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Зарегистрироваться
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Скрипт для переключения между формами входа и регистрации -->
+    <script>
+      // Функция showForm отвечает за показ нужной формы и подсветку активной кнопки
+      function showForm(formType) {
+        // Получаем элементы форм и кнопок по их id
+        const loginForm = document.getElementById('loginForm')
+        const registerForm = document.getElementById('registerForm')
+        const loginBtn = document.getElementById('loginBtn')
+        const registerBtn = document.getElementById('registerBtn')
+
+        // Если пользователь выбрал форму входа
+        if (formType === 'login') {
+          loginForm.classList.remove('hidden') // Показываем форму входа
+          registerForm.classList.add('hidden') // Скрываем форму регистрации
+          loginBtn.classList.remove('bg-gray-200') // Делаем кнопку входа синей
+          loginBtn.classList.add('bg-blue-500', 'text-white')
+          registerBtn.classList.remove('bg-blue-500', 'text-white') // Делаем кнопку регистрации серой
+          registerBtn.classList.add('bg-gray-200')
+        } else {
+          // Если пользователь выбрал форму регистрации
+          loginForm.classList.add('hidden') // Скрываем форму входа
+          registerForm.classList.remove('hidden') // Показываем форму регистрации
+          registerBtn.classList.remove('bg-gray-200') // Делаем кнопку регистрации синей
+          registerBtn.classList.add('bg-blue-500', 'text-white')
+          loginBtn.classList.remove('bg-blue-500', 'text-white') // Делаем кнопку входа серой
+          loginBtn.classList.add('bg-gray-200')
+        }
+      }
+
+      document
+        .getElementById('loginForm')
+        .addEventListener('submit', async e => {
+          e.preventDefault()
+
+          const formData = new FormData(e.target)
+          const response = await fetch('http://localhost:8000/user/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.get('email'),
+              password: formData.get('password'),
+            }),
+          })
+
+          if (response.ok) {
+            window.location.href = '/'
+            localStorage.setItem(
+              'user',
+              JSON.stringify({
+                email: formData.get('email'),
+              })
+            )
+          } else {
+            const error = await response.text()
+            const parsedError = JSON.parse(error)
+            alert(parsedError.detail)
+          }
+        })
+
+      document
+        .getElementById('registerForm')
+        .addEventListener('submit', async e => {
+          e.preventDefault()
+
+          const formData = new FormData(e.target)
+          const response = await fetch('http://localhost:8000/user/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: formData.get('name'),
+              email: formData.get('email'),
+              password: formData.get('password'),
+            }),
+          })
+
+          if (response.ok) {
+            window.location.href = '/'
+            localStorage.setItem(
+              'user',
+              JSON.stringify({
+                email: formData.get('email'),
+              })
+            )
+          } else {
+            const error = await response.text()
+            const parsedError = JSON.parse(error)
+            alert(parsedError.detail)
+          }
+        })
+    </script>
+  </body>
+</html>

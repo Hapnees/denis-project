@@ -1,0 +1,179 @@
+<div class="dropdown-container">
+  <div class="custom-dropdown">
+    <button
+      class="dropdown-toggle"
+      id="dropdown-toggle-{{ dropdown_id }}"
+      type="button"
+    >
+      <span id="selected-option-{{ dropdown_id }}" class="selected-option"
+        >{{ selected_option|default("Выберите...") }}</span
+      >
+      <span id="dropdown-arrow-{{ dropdown_id }}" class="dropdown-arrow"
+        >▼</span
+      >
+    </button>
+
+    <ul class="dropdown-menu" id="dropdown-menu-{{ dropdown_id }}">
+      {% for option in options %}
+      <li class="dropdown-item" data-value="{{ option.value }}">
+        {{ option.text }}
+      </li>
+      {% else %}
+      <li class="dropdown-item" data-value="">Нет доступных вариантов</li>
+      {% endfor %}
+    </ul>
+
+    <select
+      id="dropdown-select-{{ dropdown_id }}"
+      name="{{ name|default('dropdown') }}"
+      class="hidden-select"
+    >
+      {% for option in options %}
+      <option
+        value="{{ option.value }}"
+        {%
+        if
+        option.selected
+        %}selected{%
+        endif
+        %}
+      >
+        {{ option.text }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+<script type="module">
+  const selectedOptionValue = '{{ selected_option }}'
+  const options = '{{ options | tojson | safe }}'
+  const bookId = '{{ book_id }}'
+
+  const booksListElement = document.getElementById('books-list')
+
+  let booksCount = booksListElement?.children
+    ? Array.from(booksListElement.children).length
+    : 0
+
+  const dropdownToggle = document.getElementById(
+    'dropdown-toggle-{{ dropdown_id }}'
+  )
+  const dropdownMenu = document.getElementById(
+    'dropdown-menu-{{ dropdown_id }}'
+  )
+  const dropdownItems = dropdownMenu.querySelectorAll('li')
+  const selectedOption = document.getElementById(
+    'selected-option-{{ dropdown_id }}'
+  )
+  const hiddenSelect = document.getElementById(
+    'dropdown-select-{{ dropdown_id }}'
+  )
+
+  if (selectedOption && options) {
+    const parsedOptions = JSON.parse(options)
+    const selectedOptionText = parsedOptions.find(opt => {
+      const check = opt.value === selectedOptionValue
+      return check
+    })?.text
+
+    selectedOption.textContent = selectedOptionText
+
+    const foundItem = dropdownMenu.querySelector(
+      `[data-value="${selectedOptionValue}"]`
+    )
+
+    if (foundItem) {
+      foundItem.classList.add('selected')
+    }
+  }
+
+  // Открытие/закрытие dropdown
+  dropdownToggle.addEventListener('click', function (e) {
+    e.preventDefault()
+    e.stopPropagation()
+
+    dropdownMenu.classList.toggle('show')
+
+    // Поворот стрелки
+    const arrow = this.querySelector('#dropdown-arrow-{{ dropdown_id }}')
+    arrow.style.transform = dropdownMenu.classList.contains('show')
+      ? 'rotate(180deg)'
+      : 'rotate(0)'
+  })
+
+  // Выбор элемента из списка
+  dropdownItems.forEach(item => {
+    item.addEventListener('click', async function (e) {
+      e.stopPropagation()
+      e.preventDefault()
+
+      // Обновляем отображаемый текст
+      selectedOption.textContent = this.textContent
+
+      const value = this.getAttribute('data-value')
+
+      // Обновляем скрытый select
+      hiddenSelect.value = value
+
+      // Добавляем класс selected к выбранному элементу
+      dropdownItems.forEach(i => i.classList.remove('selected'))
+      this.classList.add('selected')
+
+      // Закрываем меню
+      dropdownMenu.classList.remove('show')
+      dropdownToggle.querySelector(
+        '#dropdown-arrow-{{ dropdown_id }}'
+      ).style.transform = 'rotate(0)'
+
+      // Можно добавить кастомное событие
+      const event = new Event('change')
+      hiddenSelect.dispatchEvent(event)
+
+      await fetch(`http://localhost:8000/book/status/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: value,
+        }),
+        credentials: 'include',
+      })
+
+      const booksList = document.getElementById('books-list')
+
+      if (booksList) {
+        const foundBook = booksList.querySelector(`[data-id="${bookId}"]`)
+
+        if (foundBook) {
+          foundBook.remove()
+          booksCount--
+        }
+
+        if (booksCount <= 0) {
+          const accountContent = document.getElementById('account-content')
+          if (accountContent) {
+            const element = document.createElement('p')
+            element.textContent = 'Не найдено'
+            accountContent.appendChild(element)
+          }
+        }
+      }
+    })
+  })
+
+  // Закрытие dropdown при клике вне его
+  document.addEventListener('click', function (e) {
+    if (
+      !dropdownToggle.contains(e.target) &&
+      !dropdownMenu.contains(e.target)
+    ) {
+      document.querySelectorAll('[id^="dropdown-menu"]').forEach(element => {
+        element.classList.remove('show')
+      })
+      document.querySelectorAll('[id^="dropdown-arrow"]').forEach(element => {
+        element.style.transform = 'rotate(0)'
+      })
+    }
+  })
+</script>

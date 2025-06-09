@@ -1,0 +1,25 @@
+<header class="header">
+  <div class="container header__content">
+    <nav>
+      <a href="/" class="nav__item">Главная</a>
+    </nav>
+
+    <div id="user-data">
+      <a id="link-login" href="/auth" class="nav__item">Вход</a>
+      <a id="user-info" href="/account">
+        <p></p>
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const user = localStorage.getItem('user')
+  if (user) {
+    const linkLoginElement = document.getElementById('link-login')
+    linkLoginElement.remove()
+  } else {
+    const userInfoElement = document.getElementById('user-info')
+    userInfoElement.remove()
+  }
+</script>

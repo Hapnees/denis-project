@@ -1,0 +1,57 @@
+<div id="account-tabs" class="account-tabs">
+  <a
+    id="account-tabs-books"
+    href="/account?tab=books"
+    class="account-tabs__item"
+    >Избранные книги</a
+  >
+  <a
+    id="account-tabs-books-planned"
+    href="/account?tab=books-planned"
+    class="account-tabs__item"
+    >Запланировано</a
+  >
+  <a
+    id="account-tabs-books-reading"
+    href="/account?tab=books-reading"
+    class="account-tabs__item"
+    >Читаю</a
+  >
+  <a
+    id="account-tabs-books-read"
+    href="/account?tab=books-read"
+    class="account-tabs__item"
+    >Прочитано</a
+  >
+  <a
+    id="account-tabs-books-postponed"
+    href="/account?tab=books-postponed"
+    class="account-tabs__item"
+    >Отложенные</a
+  >
+</div>
+
+<script>
+  const setSelectedTab = () => {
+    const search = window.location.search?.slice(1)?.split('&')
+    const searchObj = {}
+    search.forEach(item => {
+      const [key, value] = item.split('=')
+      searchObj[key] = value
+    })
+
+    const accountTabsElement = document.getElementById('account-tabs')
+
+    if (!accountTabsElement) return
+    const currentTab = searchObj.tab || 'books'
+    const foundTab = accountTabsElement.querySelector(
+      `#account-tabs-${currentTab}`
+    )
+
+    if (!foundTab) return
+
+    foundTab.classList.add('account-tabs__item_selected')
+  }
+
+  setSelectedTab()
+</script>
