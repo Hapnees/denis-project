@@ -2,6 +2,8 @@
 # asyncio позволяет выполнять несколько задач одновременно без блокировки основного потока
 import asyncio
 
+import yaml
+
 # Импорт парсеров для различных книжных магазинов
 # parse_bukvoed - парсер для магазина Буквоед
 # parser_labirint - парсер для магазина Лабиринт
@@ -45,6 +47,11 @@ from sqlalchemy import select
 from parsers.adapters import BOOK24_MAPPINGS, BUKVOED_MAPPINGS, LABIRINT_MAPPIGNS
 from parsers.parse_query_params import parse_query_sort
 
+with open("config.yaml") as file:
+    config = yaml.safe_load(file)
+
+API_URL = config['api-url']
+
 # Создание экземпляра шаблонизатора
 # directory="templates" указывает путь к директории с HTML-шаблонами
 templates = Jinja2Templates(directory="templates")
@@ -75,14 +82,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def home(request: Request):
     # Рендеринг шаблона index.html
     # {"request": request} - контекст для шаблона, необходимый для генерации URL
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request, "api_url": API_URL})
 
 # Обработчик GET-запроса для страницы аутентификации
 # Возвращает страницу с формами входа и регистрации
 @app.get("/auth")
 async def auth_page(request: Request):
     # Рендеринг шаблона auth.html
-    return templates.TemplateResponse("auth.html", {"request": request})
+    return templates.TemplateResponse("auth.html", {"request": request, "api_url": API_URL})
 
 # Обработчик GET-запроса для поиска книг
 # Принимает параметр query из URL и выполняет поиск по всем магазинам
@@ -139,7 +146,8 @@ async def find_books(request: Request):
             "books": sorted_books, 
             "query": query,
             "sort": sort or "",
-            "resources": resources or ""
+            "resources": resources or "",
+            "api_url": API_URL
         }
     )
 
@@ -170,4 +178,4 @@ async def account_page(session: database.SessionDep, request: Request, user: Use
         "status": book.status.value,
     } for book in books]
 
-    return templates.TemplateResponse("account.html", {"request": request, "books": serialized_books})
+    return templates.TemplateResponse("account.html", {"request": request, "books": serialized_books, "api_url": API_URL})

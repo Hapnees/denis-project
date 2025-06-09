@@ -45,6 +45,7 @@
   </div>
 </div>
 <script type="module">
+  const apiUrl = '{{ api_url }}'
   const selectedOptionValue = '{{ selected_option }}'
   const options = '{{ options | tojson | safe }}'
   const bookId = '{{ book_id }}'
@@ -129,7 +130,7 @@
       const event = new Event('change')
       hiddenSelect.dispatchEvent(event)
 
-      await fetch(`http://localhost:8000/book/status/${bookId}`, {
+      await fetch(`${apiUrl}/book/status/${bookId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

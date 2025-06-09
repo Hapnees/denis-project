@@ -65,8 +65,8 @@
             {% set sort_options = [{"value": "", "text": "Без сортировки", }, {
             "value": "price_asc", "text": "Сначала дешёвые" }, {"value":
             "price_desc", "text": "Сначала дорогие"}] %} {% with
-            options=sort_options, selected_option=sort %} {% include
-            'dropdown_books_sort.html' %} {% endwith %}
+            options=sort_options, selected_option=sort, api_url=api_url %} {%
+            include 'dropdown_books_sort.html' %} {% endwith %}
           </div>
 
           <div class="books-sort">
@@ -107,6 +107,7 @@
     </main>
 
     <script>
+      const apiUrl = '{{ api_url }}'
       const sourcesListElement = document.getElementById('sources-list')
 
       if (sourcesListElement) {
@@ -121,6 +122,12 @@
             console.log(value)
 
             const urlParams = new URLSearchParams(window.location.search)
+            if (!urlParams.getAll('resources').length) {
+              urlParams.append('resources', 'bukvoed')
+              urlParams.append('resources', 'book24')
+              urlParams.append('resources', 'labirint')
+            }
+
             if (isChecked) {
               urlParams.append('resources', value)
             } else {
@@ -140,7 +147,7 @@
       const booksListElement = document.getElementById('books-list')
 
       const setFavoriteIds = async () => {
-        return await fetch('http://localhost:8000/book/get-favorites', {
+        return await fetch(`${apiUrl}/book/get-favorites`, {
           credentials: 'include',
         }).then(async res => {
           const favoriteBooks = await res.json()
@@ -188,7 +195,7 @@
 
               if (isLiked) {
                 const res = await fetch(
-                  `http://localhost:8000/book/remove-favorite/${foundFavBook.id}`,
+                  `${apiUrl}/book/remove-favorite/${foundFavBook.id}`,
                   {
                     method: 'DELETE',
                     headers: {
@@ -214,22 +221,19 @@
                 const link = bookElement.href
                 const externalId = bookElement.getAttribute('data-external-id')
 
-                const res = await fetch(
-                  'http://localhost:8000/book/add-favorite',
-                  {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      title,
-                      link,
-                      price,
-                      img_link: imgLink,
-                      external_id: externalId,
-                    }),
-                  }
-                )
+                const res = await fetch(`${apiUrl}/book/add-favorite`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    title,
+                    link,
+                    price,
+                    img_link: imgLink,
+                    external_id: externalId,
+                  }),
+                })
 
                 if (res.ok) {
                   likeElement.classList.add('book-card__like_liked')

@@ -166,6 +166,7 @@
 
     <!-- Скрипт для переключения между формами входа и регистрации -->
     <script>
+      const apiUrl = '{{ api_url }}'
       // Функция showForm отвечает за показ нужной формы и подсветку активной кнопки
       function showForm(formType) {
         // Получаем элементы форм и кнопок по их id
@@ -199,7 +200,7 @@
           e.preventDefault()
 
           const formData = new FormData(e.target)
-          const response = await fetch('http://localhost:8000/user/login', {
+          const response = await fetch(`${apiUrl}/user/login`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -231,7 +232,7 @@
           e.preventDefault()
 
           const formData = new FormData(e.target)
-          const response = await fetch('http://localhost:8000/user/register', {
+          const response = await fetch(`${apiUrl}/user/register`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

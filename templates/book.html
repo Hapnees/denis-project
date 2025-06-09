@@ -28,7 +28,7 @@
     "text": "читаю" }, {"value": "read", "text": "прочитано"}, {"value":
     "postponed", "text": "отложено"}, {"value": "planned", "text": "в планах"}]
     %} {% with dropdown_id = book.id, options = dropdown_options,
-    selected_option = book.status, book_id = book.id %} {% include
-    'dropdown.html' %} {% endwith %} {% endif %}
+    selected_option = book.status, book_id = book.id, api_url=api_url %} {%
+    include 'dropdown.html' %} {% endwith %} {% endif %}
   </div>
 </a>

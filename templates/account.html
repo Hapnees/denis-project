@@ -41,9 +41,11 @@
 
     <script>
       const logoutButton = document.getElementById('logout-button')
+      const apiUrl = '{{ api_url }}'
+
       if (logoutButton) {
         logoutButton.onclick = () => {
-          fetch('http://localhost:8000/user/logout', {
+          fetch(`${apiUrl}/user/logout`, {
             method: 'POST',
             credentials: 'include',
           }).then(res => {
@@ -86,7 +88,7 @@
             const link = bookElement.querySelector('#book-link')?.href
 
             const res = await fetch(
-              `http://localhost:8000/book/remove-favorite/${book.id}`,
+              `${apiUrl}/book/remove-favorite/${book.id}`,
               {
                 method: 'DELETE',
                 headers: {
