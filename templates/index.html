@@ -165,15 +165,18 @@
                 bookElement
                   .querySelector('#book-like')
                   .classList.add('book-card__like_liked')
+              } else {
+                bookElement.setAttribute('data-is-liked', false)
               }
             })
 
           return favoriteBooks
         })
       }
+      let favoriteBooks = undefined
 
       setFavoriteIds().then(res => {
-        let favoriteBooks = res
+        favoriteBooks = res
 
         booksListElement?.children &&
           Array.from(booksListElement.children)?.forEach(bookElement => {
@@ -189,9 +192,9 @@
 
             likeElement.onclick = async e => {
               e.preventDefault()
-              console.log('CLICK')
 
-              const isLiked = bookElement.getAttribute('data-is-liked')
+              const isLiked =
+                bookElement.getAttribute('data-is-liked') === 'true'
 
               if (isLiked) {
                 const res = await fetch(
@@ -206,6 +209,7 @@
 
                 if (res.ok) {
                   likeElement.classList.remove('book-card__like_liked')
+                  bookElement.removeAttribute('data-is-liked')
                 }
               } else {
                 const title = bookElement
@@ -237,6 +241,7 @@
 
                 if (res.ok) {
                   likeElement.classList.add('book-card__like_liked')
+                  bookElement.setAttribute('data-is-liked', true)
                 }
               }
             }
